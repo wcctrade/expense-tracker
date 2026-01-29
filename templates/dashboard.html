@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: #25D366;
+            color: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+        
+        header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .stat-card h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #25D366;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-header h2 {
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #25D366;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        
+        .btn:hover {
+            background: #1da851;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+        }
+        
+        tr:hover {
+            background: #f9fafb;
+        }
+        
+        .amount {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .category-rent { background: #e3f2fd; color: #1565c0; }
+        .category-travel { background: #f3e5f5; color: #7b1fa2; }
+        .category-food { background: #fff3e0; color: #ef6c00; }
+        .category-partner_loan { background: #e8f5e9; color: #2e7d32; }
+        .category-business_purchase { background: #fce4ec; color: #c2185b; }
+        .category-client_acquisition { background: #e0f7fa; color: #00838f; }
+        .category-uncategorized { background: #eeeeee; color: #616161; }
+        
+        .date {
+            color: #888;
+            font-size: 13px;
+        }
+        
+        .description {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+        
+        .category-card {
+            padding: 15px;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+        
+        .category-card h4 {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .category-card .amount {
+            font-size: 20px;
+        }
+        
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: #888;
+        }
+        
+        .empty-state p {
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            th, td {
+                padding: 10px;
+                font-size: 13px;
+            }
+            
+            .description {
+                max-width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Expense Tracker</h1>
+            <p>WhatsApp-based bookkeeping for your partnership firm</p>
+        </header>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Expenses</h3>
+                <div class="value">₹{{ "{:,.2f}".format(total) }}</div>
+            </div>
+            {% for cat in category_totals %}
+            <div class="stat-card">
+                <h3>{{ format_category(cat['category']) }}</h3>
+                <div class="value">₹{{ "{:,.2f}".format(cat['total']) }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="section">
+            <div class="section-header">
+                <h2>Category Breakdown</h2>
+            </div>
+            <div class="categories-grid">
+                {% for cat in category_totals %}
+                <div class="category-card">
+                    <h4>{{ format_category(cat['category']) }}</h4>
+                    <div class="amount">₹{{ "{:,.2f}".format(cat['total']) }}</div>
+                </div>
+                {% empty %}
+                <p>No expenses recorded yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-header">
+                <h2>Partner Contributions</h2>
+            </div>
+            <div class="categories-grid">
+                {% for partner in partner_totals %}
+                <div class="category-card">
+                    <h4>{{ partner['partner_name'] or 'Unknown' }}</h4>
+                    <div class="amount">₹{{ "{:,.2f}".format(partner['total']) }}</div>
+                </div>
+                {% empty %}
+                <p>No expenses recorded yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-header">
+                <h2>Recent Expenses</h2>
+                <a href="/export" class="btn">📥 Export CSV</a>
+            </div>
+            
+            {% if expenses %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Partner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in expenses %}
+                    <tr>
+                        <td class="date">{{ expense['created_at'][:16] }}</td>
+                        <td class="amount">₹{{ "{:,.2f}".format(expense['amount']) }}</td>
+                        <td>
+                            <span class="category-badge category-{{ expense['category'] }}">
+                                {{ format_category(expense['category']) }}
+                            </span>
+                        </td>
+                        <td class="description" title="{{ expense['description'] }}">{{ expense['description'] }}</td>
+                        <td>{{ expense['partner_name'] or 'Unknown' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <p>No expenses recorded yet.</p>
+                <p>Send a WhatsApp message to start tracking!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
